@@ -1,39 +1,33 @@
 import React, { useState } from "react";
+import IconPlus from "../assets/icon-plus.svg";
+import IconMinus from "../assets/icon-minus.svg";
+import IconReply from "../assets/icon-reply.svg";
 
-const Comment = () => {
-    //state for testing
-  const [comment, setComment] = useState({
-    id: 1,
-    content:
-      "Impressive! Though it seems the drag feature could be improved. But overall it looks incredible. You've nailed the design and the responsiveness at various breakpoints works really well.",
-    createdAt: "1 month ago",
-    score: 12,
-    user: {
-      image: {
-        png: "./images/avatars/image-amyrobson.png",
-        webp: "./images/avatars/image-amyrobson.webp",
-      },
-      username: "amyrobson",
-    },
-    replies: [],
-  });
+const Comment = ({ comment }) => {
   return (
-    <div>
-      <div>
-          +
+    <div className="flex ">
+      <div className="border-2 border-red-200">
+        <img src={IconPlus} />
         <div>{comment.score}</div>
-        -
+        <img src={IconMinus} />
       </div>
-      <div>
-        <div>
+      <div className="border-2 border-blue-200">
+        <div className="flex">
           <img
             src={require("../assets/avatars/image-amyrobson.png")}
             alt="avatar"
           />
           <div>{comment.username}</div>
           <div>{comment.createdAt}</div>
+          <div>
+            <img src={IconReply} /> <span>Reply</span>
+          </div>
         </div>
         <div>{comment.content}</div>
+      </div>
+      <div>
+        {comment.replies &&
+          comment.replies.map((reply) => <div>{reply.content}</div>)}
       </div>
     </div>
   );
