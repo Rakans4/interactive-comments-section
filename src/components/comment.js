@@ -1,15 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import IconPlus from "../assets/icon-plus.svg";
 import IconMinus from "../assets/icon-minus.svg";
 import IconReply from "../assets/icon-reply.svg";
 
 const Comment = ({ comment }) => {
   return (
-    <div className="flex ">
+    <div className="flex bg-white w-72">
       <div className="border-2 border-red-200">
-        <img src={IconPlus} />
+        <img src={IconPlus} alt="plus score" />
         <div>{comment.score}</div>
-        <img src={IconMinus} />
+        <img src={IconMinus} alt="minus score" />
       </div>
       <div className="border-2 border-blue-200">
         <div className="flex">
@@ -20,10 +20,10 @@ const Comment = ({ comment }) => {
           <div>{comment.username}</div>
           <div>{comment.createdAt}</div>
           <div>
-            <img src={IconReply} /> <span>Reply</span>
+            <img src={IconReply} alt="reply"/> <span>Reply</span>
           </div>
         </div>
-        <div>{comment.content}</div>
+        <div className="text-GrayishBlue">{comment.content}</div>
       </div>
       <div>
         {comment.replies &&
