@@ -16,7 +16,10 @@ module.exports = {
         LightGray:' hsl(223, 19%, 93%)',
         VeryLightGray: 'hsl(228, 33%, 97%)',
         White: 'hsl(0, 0%, 100%)'
-      }
+      },
+      fontFamily: {
+        sans: ['Rubik', 'sans-serif']
+      },
     },
   },
   plugins: [],
