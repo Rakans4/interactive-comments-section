@@ -6,16 +6,23 @@ import IconEdit from "../assets/icon-edit.svg";
 import IconDelete from "../assets/icon-delete.svg";
 import Reply from "./reply";
 
-const Comment = ({ comment }) => {
+import { initialComments, currentUser, commentsReducer } from "../state";
+
+const Comment = (props) => {
+  const comment = props.comment;
+  console.log(props.delete);
+  function deleteComment() {
+    props.delete(comment.id);
+  }
   return (
     <div className="w-[44rem]">
       <div className="flex bg-white w-full rounded-lg p-6 my-3">
-        <div className="bg-VeryLightGray w-24 h-24 flex flex-col justify-between items-center py-4 rounded-lg text-ModerateBlue">
+        <div className="bg-VeryLightGray w-[5%] h-24 flex flex-col justify-between items-center py-4 rounded-lg text-ModerateBlue">
           <img className="w-max h-max" src={IconPlus} alt="plus score" />
           <div className="font-medium">{comment.score}</div>
           <img className="w-max h-max" src={IconMinus} alt="minus score" />
         </div>
-        <div className="ml-6">
+        <div className="ml-6 w-[90%]">
           <div className="flex items-center w-full justify-between">
             <div className="flex items-center">
               <img
@@ -27,20 +34,33 @@ const Comment = ({ comment }) => {
               <div className="ml-6 font-medium">{comment.user.username}</div>
               <div className="ml-6 text-GrayishBlue">{comment.createdAt}</div>
             </div>
-            <div className="flex items-center text-ModerateBlue font-medium">
-              <img className="h-max w-max" src={IconReply} alt="reply" />
-              <span className="ml-2">Reply</span>
-            </div>
-            <div className="flex items-center text-ModerateBlue font-medium">
-              <img className="h-max w-max" src={IconEdit} alt="reply" />
-              <span className="ml-2">Edit</span>
-            </div>
-            <div className="flex items-center text-SoftRed font-medium">
-              <img className="h-max w-max" src={IconDelete} alt="reply" />
-              <span className="ml-2">Delete</span>
+            <div className="flex">
+            {comment.user.username === currentUser.username ? (
+              <>
+              <div
+                  onClick={deleteComment}
+                  className="flex items-center text-SoftRed font-medium"
+                >
+                  <img className="h-max w-max" src={IconDelete} alt="reply" />
+                  <span className="ml-2">Delete</span>
+                </div>
+                <div className="flex items-center text-ModerateBlue font-medium ml-6">
+                  <img className="h-max w-max" src={IconEdit} alt="reply" />
+                  <span className="ml-2">Edit</span>
+                </div>
+                
+              </>
+            ) : (
+              <div className="flex items-center text-ModerateBlue font-medium">
+                <img className="h-max w-max" src={IconReply} alt="reply" />
+                <span className="ml-2">Reply</span>
+              </div>
+            )}
             </div>
           </div>
-          <div className="text-GrayishBlue mt-4">{comment.content}</div>
+          <div className="text-GrayishBlue mt-4 break-all">
+            {comment.content}
+          </div>
         </div>
       </div>
       <div className="w-full flex flex-col items-center">

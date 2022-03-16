@@ -82,7 +82,7 @@ export function commentsReducer(commentState, action) {
       });
     case "delete":
       return commentState.filter((comment) => {
-        if (action.id) return;
+        if (action.id === comment.id) return;
         else return comment;
       });
     default:
