@@ -4,6 +4,6 @@
 @tailwind utilities;
 
 textarea {
-    resize: vertical;
-    width: 80%;
+    resize: none;
+    width: 85%;
 }

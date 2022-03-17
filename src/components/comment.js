@@ -1,26 +1,78 @@
-import React from "react";
+import React, { useState } from "react";
 import IconPlus from "../assets/icon-plus.svg";
 import IconMinus from "../assets/icon-minus.svg";
 import IconReply from "../assets/icon-reply.svg";
 import IconEdit from "../assets/icon-edit.svg";
 import IconDelete from "../assets/icon-delete.svg";
 import Reply from "./reply";
+import { v4 as uuid } from 'uuid';
 
 import { initialComments, currentUser, commentsReducer } from "../state";
 
 const Comment = (props) => {
+  const [isReplying, setIsReplying] = useState(false);
   const comment = props.comment;
-  console.log(props.delete);
+  const isLoggedUser = comment.user.username === currentUser.username;
+  
+
   function deleteComment() {
     props.delete(comment.id);
   }
+
+  function upvote() {
+    props.upvote(comment);
+  }
+
+  function downvote() {
+    props.downvote(comment);
+  }
+
+  function toggleReply(){
+    setIsReplying(!isReplying);
+  }
+
+  function addReply(e) {
+    e.preventDefault();
+    const id = uuid(),
+      content = e.target.firstChild.value,
+      createdAt = new Date().toDateString(),
+      score = 0,
+      replyingTo = comment.user.username,
+      user =currentUser;
+    const newReply = {
+      id: id,
+      content: content,
+      createdAt: createdAt,
+      score: score,
+      replyingTo: replyingTo,
+      user: user
+    }
+
+    console.log(newReply)
+    
+    props.updateComment({...comment, replies: [...comment.replies, newReply]});
+    toggleReply();
+  }
+
   return (
     <div className="w-[44rem]">
       <div className="flex bg-white w-full rounded-lg p-6 my-3">
-        <div className="bg-VeryLightGray w-[5%] h-24 flex flex-col justify-between items-center py-4 rounded-lg text-ModerateBlue">
-          <img className="w-max h-max" src={IconPlus} alt="plus score" />
-          <div className="font-medium">{comment.score}</div>
-          <img className="w-max h-max" src={IconMinus} alt="minus score" />
+        <div className="bg-VeryLightGray w-[5%] h-24 flex flex-col  rounded-lg text-ModerateBlue">
+          <div
+            onClick={upvote}
+            className="w-full h-1/3 flex items-center justify-center cursor-pointer"
+          >
+            <img className="w-max h-max" src={IconPlus} alt="plus score" />
+          </div>
+          <div className="font-medium w-full h-1/3 flex items-center justify-center">
+            {comment.score}
+          </div>
+          <div
+            onClick={downvote}
+            className="w-full h-1/3 flex items-center justify-center cursor-pointer"
+          >
+            <img className="w-max h-max" src={IconMinus} alt="minus score" />
+          </div>
         </div>
         <div className="ml-6 w-[90%]">
           <div className="flex items-center w-full justify-between">
@@ -31,31 +83,37 @@ const Comment = (props) => {
                 // src={require(`.${comment.user.image.png}`)}
                 alt="avatar"
               />
-              <div className="ml-6 font-medium">{comment.user.username}</div>
+              <div className="ml-6 font-medium">
+                {comment.user.username}
+                {isLoggedUser && (
+                  <span className="bg-ModerateBlue rounded-sm text-white text-xs px-[0.3rem] py-[0.1rem]">
+                    you
+                  </span>
+                )}
+              </div>
               <div className="ml-6 text-GrayishBlue">{comment.createdAt}</div>
             </div>
             <div className="flex">
-            {comment.user.username === currentUser.username ? (
-              <>
-              <div
-                  onClick={deleteComment}
-                  className="flex items-center text-SoftRed font-medium"
-                >
-                  <img className="h-max w-max" src={IconDelete} alt="reply" />
-                  <span className="ml-2">Delete</span>
+              {isLoggedUser ? (
+                <>
+                  <div
+                    onClick={deleteComment}
+                    className="flex items-center text-SoftRed font-medium"
+                  >
+                    <img className="h-max w-max" src={IconDelete} alt="reply" />
+                    <span className="ml-2">Delete</span>
+                  </div>
+                  <div className="flex items-center text-ModerateBlue font-medium ml-6">
+                    <img className="h-max w-max" src={IconEdit} alt="reply" />
+                    <span className="ml-2">Edit</span>
+                  </div>
+                </>
+              ) : (
+                <div onClick={toggleReply} className="flex items-center text-ModerateBlue font-medium">
+                  <img className="h-max w-max" src={IconReply} alt="reply" />
+                  <span className="ml-2">Reply</span>
                 </div>
-                <div className="flex items-center text-ModerateBlue font-medium ml-6">
-                  <img className="h-max w-max" src={IconEdit} alt="reply" />
-                  <span className="ml-2">Edit</span>
-                </div>
-                
-              </>
-            ) : (
-              <div className="flex items-center text-ModerateBlue font-medium">
-                <img className="h-max w-max" src={IconReply} alt="reply" />
-                <span className="ml-2">Reply</span>
-              </div>
-            )}
+              )}
             </div>
           </div>
           <div className="text-GrayishBlue mt-4 break-all">
@@ -63,9 +121,28 @@ const Comment = (props) => {
           </div>
         </div>
       </div>
+      {isReplying &&
+      <div className="w-full flex flex-col items-center">
+        <div className="w-[44rem] flex bg-white rounded-lg p-6 mt-1">
+          <img
+          className="w-9 h-9"
+            src={require("../assets/avatars/image-amyrobson.png")}
+            alt="logged in user avatar"
+          />
+          <form onSubmit={addReply} className="w-full flex items-start justify-between ml-3">
+            <textarea
+              type="text"
+              placeholder="Add a comment..."
+              className="border-[0.5px] border-LightGray rounded-lg text-base break-all py-2 px-3 font-normal"
+            />
+            <input className="h-10 w-20 bg-ModerateBlue text-white rounded-lg text-sm" type="submit" value="REPLY" />
+          </form>
+        </div>
+      </div>
+      }
       <div className="w-full flex flex-col items-center">
         {comment.replies &&
-          comment.replies.map((reply) => <Reply reply={reply} />)}
+          comment.replies.map((reply) => <Reply reply={reply} id={reply.id} />)}
       </div>
     </div>
   );

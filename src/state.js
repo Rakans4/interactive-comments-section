@@ -76,7 +76,7 @@ export function commentsReducer(commentState, action) {
       return [...commentState, action.comment];
     case "update":
       return commentState.map((comment) => {
-        if (comment.id === action.id) {
+        if (comment.id === action.comment.id) {
           return action.comment;
         } else return comment;
       });

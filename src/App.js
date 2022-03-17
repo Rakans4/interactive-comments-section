@@ -24,22 +24,33 @@ export default function App() {
       replies: replies
     }
     dispatch({type: 'add', comment: newComment});
+  }
 
-    console.log(newComment);
+  function upvote(comment) {
+    let newScore = comment.score + 1;
+    comment = {...comment, score: newScore}
+    dispatch({type: 'update', comment:comment});
+  }
+
+  function downvote(comment) {
+    let newScore = comment.score - 1;
+    comment = {...comment, score: newScore}
+    dispatch({type: 'update', comment:comment});
   }
 
   function deleteComment(id){
-    console.log(id);
-    
     dispatch({type: 'delete', id:id});
-    console.log(comments);
+  }
+
+  function updateComment(comment) {
+    dispatch({type: 'update', comment:comment});
   }
 
   return (
     <div className="font-sans">
       <div className="w-screen flex flex-col items-center">
         {comments.map((comment) => (
-          <Comment comment={comment} delete={deleteComment} key={comment.id} />
+          <Comment comment={comment} delete={deleteComment} upvote={upvote} downvote={downvote} updateComment={updateComment} key={comment.id} />
         ))}
       </div>
       <div className="w-screen flex flex-col items-center">
