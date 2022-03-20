@@ -11,6 +11,28 @@ const Reply = (props) => {
   const [isReplying, setIsReplying] = useState(false);
   const reply = props.reply;
   const isLoggedUser = reply.user.username === currentUser.username;
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [replyContent, setReplyContent] = useState("");
+
+  function handleInput(e) {
+    setReplyContent(e.target.value);
+  }
+  function openEditReply() {
+    setReplyContent(reply.content);
+    setIsEditing(!isEditing);
+  }
+
+  function addReply(e){
+    props.addReply(e,reply.user.username);
+    toggleReply();
+  }
+
+  function editReply(e) {
+    e.preventDefault();
+    props.editReply({...reply, content: replyContent});
+    setIsEditing(!isEditing);
+  }
   function toggleReply() {
     setIsReplying(!isReplying);
   }
@@ -65,7 +87,7 @@ const Reply = (props) => {
                     <img className="h-max w-max" src={IconDelete} alt="reply" />
                     <span className="ml-2">Delete</span>
                   </div>
-                  <div className="flex items-center text-ModerateBlue font-medium ml-6 cursor-pointer">
+                  <div onClick={openEditReply} className="flex items-center text-ModerateBlue font-medium ml-6 cursor-pointer">
                     <img className="h-max w-max" src={IconEdit} alt="reply" />
                     <span className="ml-2">Edit</span>
                   </div>
@@ -81,7 +103,27 @@ const Reply = (props) => {
               )}
             </div>
           </div>
-          <div className="text-GrayishBlue mt-4 break-all">{reply.content}</div>
+          {isEditing ? (
+            <form
+              onSubmit={editReply}
+              className="w-full flex items-start justify-between ml-3 mt-2"
+            >
+              <textarea
+                type="text"
+                placeholder="Add a comment..."
+                className="border-[0.5px] border-LightGray rounded-lg text-base break-all py-2 px-3 font-normal w-[83%]"
+                value={replyContent}
+                onChange={handleInput}
+              />
+              <input
+                className="h-10 w-20 bg-ModerateBlue text-white rounded-lg text-sm cursor-pointer"
+                type="submit"
+                value="EDIT"
+              />
+            </form>
+          ) : (
+          <div className="text-GrayishBlue mt-4 break-all"><span className="text-ModerateBlue font-bold">@{reply.replyingTo}&nbsp;</span>{reply.content}</div>
+          )}
         </div>
       </div>
       {isReplying && (
@@ -93,7 +135,7 @@ const Reply = (props) => {
               alt="logged in user avatar"
             />
             <form
-              // onSubmit={addReply}
+              onSubmit={addReply}
               className="w-full flex items-start justify-between ml-3"
             >
               <textarea
@@ -102,7 +144,7 @@ const Reply = (props) => {
                 className="border-[0.5px] border-LightGray rounded-lg text-base break-all py-2 px-3 font-normal w-[83%]"
               />
               <input
-                className="h-10 w-20 bg-ModerateBlue text-white rounded-lg text-sm"
+                className="h-10 w-20 bg-ModerateBlue text-white rounded-lg text-sm cursor-pointer"
                 type="submit"
                 value="REPLY"
               />

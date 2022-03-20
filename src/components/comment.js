@@ -37,6 +37,18 @@ const Comment = (props) => {
     });
   }
 
+  function editReply(editedReply) {
+    let repliesCopy = comment.replies.map((reply) => {
+      if (editedReply.id === reply.id) return editedReply;
+      return reply;
+    });
+
+    props.updateComment({
+      ...comment,
+      replies: repliesCopy,
+    });
+  }
+
   function upvote(id) {
     if (id) {
       const replies = comment.replies.map((reply) => {
@@ -80,13 +92,13 @@ const Comment = (props) => {
     setIsEditing(!isEditing);
   }
 
-  function addReply(e) {
+  function addReply(e, replyingToUser) {
     e.preventDefault();
     const id = uuid(),
       content = e.target.firstChild.value,
       createdAt = new Date().toDateString(),
       score = 0,
-      replyingTo = comment.user.username,
+      replyingTo = replyingToUser || comment.user.username,
       user = currentUser;
     const newReply = {
       id: id,
@@ -105,7 +117,7 @@ const Comment = (props) => {
     });
 
     setCommentContent("");
-    toggleReply();
+    if(isReplying)toggleReply();
   }
 
   return (
@@ -234,7 +246,9 @@ const Comment = (props) => {
               reply={reply}
               upvote={upvote}
               downvote={downvote}
+              addReply={addReply}
               deleteReply={deleteReply}
+              editReply={editReply}
               id={reply.id}
             />
           ))}
