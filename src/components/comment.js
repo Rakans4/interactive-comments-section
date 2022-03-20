@@ -5,30 +5,79 @@ import IconReply from "../assets/icon-reply.svg";
 import IconEdit from "../assets/icon-edit.svg";
 import IconDelete from "../assets/icon-delete.svg";
 import Reply from "./reply";
-import { v4 as uuid } from 'uuid';
+import { v4 as uuid } from "uuid";
 
 import { initialComments, currentUser, commentsReducer } from "../state";
 
 const Comment = (props) => {
   const [isReplying, setIsReplying] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const comment = props.comment;
   const isLoggedUser = comment.user.username === currentUser.username;
-  
+
+  const [commentContent, setCommentContent] = useState("");
+
+  function handleInput(e) {
+    setCommentContent(e.target.value);
+  }
 
   function deleteComment() {
     props.delete(comment.id);
   }
 
-  function upvote() {
-    props.upvote(comment);
+  function deleteReply(replyId) {
+    let repliesCopy = comment.replies.filter((reply) => {
+      if (replyId === reply.id) return;
+      return reply;
+    });
+
+    props.updateComment({
+      ...comment,
+      replies: repliesCopy,
+    });
   }
 
-  function downvote() {
-    props.downvote(comment);
+  function upvote(id) {
+    if (id) {
+      const replies = comment.replies.map((reply) => {
+        if (id === reply.id) {
+          return { ...reply, score: reply.score + 1 };
+        }
+        return reply;
+      });
+      props.upvote({ ...comment, replies: replies }, true);
+    } else {
+      props.upvote(comment, false);
+    }
   }
 
-  function toggleReply(){
+  function downvote(id) {
+    if (id) {
+      const replies = comment.replies.map((reply) => {
+        if (id === reply.id) {
+          return { ...reply, score: reply.score - 1 };
+        }
+        return reply;
+      });
+      props.upvote({ ...comment, replies: replies }, true);
+    } else {
+      props.downvote(comment);
+    }
+  }
+
+  function toggleReply() {
     setIsReplying(!isReplying);
+  }
+
+  function openEditComment() {
+    setCommentContent(comment.content);
+    setIsEditing(!isEditing);
+  }
+
+  function editComment(e) {
+    e.preventDefault();
+    props.updateComment({ ...comment, content: commentContent });
+    setIsEditing(!isEditing);
   }
 
   function addReply(e) {
@@ -38,19 +87,24 @@ const Comment = (props) => {
       createdAt = new Date().toDateString(),
       score = 0,
       replyingTo = comment.user.username,
-      user =currentUser;
+      user = currentUser;
     const newReply = {
       id: id,
       content: content,
       createdAt: createdAt,
       score: score,
       replyingTo: replyingTo,
-      user: user
-    }
+      user: user,
+    };
 
-    console.log(newReply)
-    
-    props.updateComment({...comment, replies: [...comment.replies, newReply]});
+    console.log(newReply);
+
+    props.updateComment({
+      ...comment,
+      replies: [...comment.replies, newReply],
+    });
+
+    setCommentContent("");
     toggleReply();
   }
 
@@ -98,51 +152,92 @@ const Comment = (props) => {
                 <>
                   <div
                     onClick={deleteComment}
-                    className="flex items-center text-SoftRed font-medium"
+                    className="flex items-center text-SoftRed font-medium cursor-pointer"
                   >
                     <img className="h-max w-max" src={IconDelete} alt="reply" />
                     <span className="ml-2">Delete</span>
                   </div>
-                  <div className="flex items-center text-ModerateBlue font-medium ml-6">
+                  <div
+                    onClick={openEditComment}
+                    className="flex items-center text-ModerateBlue font-medium ml-6 cursor-pointer"
+                  >
                     <img className="h-max w-max" src={IconEdit} alt="reply" />
                     <span className="ml-2">Edit</span>
                   </div>
                 </>
               ) : (
-                <div onClick={toggleReply} className="flex items-center text-ModerateBlue font-medium">
+                <div
+                  onClick={toggleReply}
+                  className="flex items-center text-ModerateBlue font-medium cursor-pointer"
+                >
                   <img className="h-max w-max" src={IconReply} alt="reply" />
                   <span className="ml-2">Reply</span>
                 </div>
               )}
             </div>
           </div>
-          <div className="text-GrayishBlue mt-4 break-all">
-            {comment.content}
+          {isEditing ? (
+            <form
+              onSubmit={editComment}
+              className="w-full flex items-start justify-between ml-3 mt-2"
+            >
+              <textarea
+                type="text"
+                placeholder="Add a comment..."
+                className="border-[0.5px] border-LightGray rounded-lg text-base break-all py-2 px-3 font-normal"
+                value={commentContent}
+                onChange={handleInput}
+              />
+              <input
+                className="h-10 w-20 bg-ModerateBlue text-white rounded-lg text-sm"
+                type="submit"
+                value="EDIT"
+              />
+            </form>
+          ) : (
+            <div className="text-GrayishBlue mt-4 break-all">
+              {comment.content}
+            </div>
+          )}
+        </div>
+      </div>
+      {isReplying && (
+        <div className="w-full flex flex-col items-center">
+          <div className="w-[44rem] flex bg-white rounded-lg p-6 mt-1">
+            <img
+              className="w-9 h-9"
+              src={require("../assets/avatars/image-amyrobson.png")}
+              alt="logged in user avatar"
+            />
+            <form
+              onSubmit={addReply}
+              className="w-full flex items-start justify-between ml-3"
+            >
+              <textarea
+                type="text"
+                placeholder="Add a comment..."
+                className="border-[0.5px] border-LightGray rounded-lg text-base break-all py-2 px-3 font-normal"
+              />
+              <input
+                className="h-10 w-20 bg-ModerateBlue text-white rounded-lg text-sm"
+                type="submit"
+                value="REPLY"
+              />
+            </form>
           </div>
         </div>
-      </div>
-      {isReplying &&
-      <div className="w-full flex flex-col items-center">
-        <div className="w-[44rem] flex bg-white rounded-lg p-6 mt-1">
-          <img
-          className="w-9 h-9"
-            src={require("../assets/avatars/image-amyrobson.png")}
-            alt="logged in user avatar"
-          />
-          <form onSubmit={addReply} className="w-full flex items-start justify-between ml-3">
-            <textarea
-              type="text"
-              placeholder="Add a comment..."
-              className="border-[0.5px] border-LightGray rounded-lg text-base break-all py-2 px-3 font-normal"
-            />
-            <input className="h-10 w-20 bg-ModerateBlue text-white rounded-lg text-sm" type="submit" value="REPLY" />
-          </form>
-        </div>
-      </div>
-      }
+      )}
       <div className="w-full flex flex-col items-center">
         {comment.replies &&
-          comment.replies.map((reply) => <Reply reply={reply} id={reply.id} />)}
+          comment.replies.map((reply) => (
+            <Reply
+              reply={reply}
+              upvote={upvote}
+              downvote={downvote}
+              deleteReply={deleteReply}
+              id={reply.id}
+            />
+          ))}
       </div>
     </div>
   );

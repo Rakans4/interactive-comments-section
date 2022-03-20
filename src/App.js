@@ -26,9 +26,12 @@ export default function App() {
     dispatch({type: 'add', comment: newComment});
   }
 
-  function upvote(comment) {
+  function upvote(comment, replyUpvote) {
+    console.log(replyUpvote)
+    if(!replyUpvote){
     let newScore = comment.score + 1;
     comment = {...comment, score: newScore}
+  }
     dispatch({type: 'update', comment:comment});
   }
 
